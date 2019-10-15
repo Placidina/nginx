@@ -1,0 +1,534 @@
+---
+- name: Nginx
+  hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - secret
+  vars:
+    nginx_version: "1.16.1"
+    pcre_version: "8.43"
+    zlib_version: "1.2.11"
+    openssl_version: "1.1.1a"
+    luajit2_version: "2.1-20190912"
+    lua_resty_core_version: "0.1.17"
+    lua_resty_lrucache_version: "0.09"
+    lua_resty_http_version: "0.15"
+    lua_resty_balancer_version: "0.03"
+    luarocks_version: "3.2.1"
+    modsecurity_lib_version: "3.0.3"
+    owasp_modsecurity_crs_version: "3.2.0"
+    modsecurity_nginx_version: "1.0.0"
+    lua_nginx_module_version: "0.10.15"
+    set_misc_nginx_module_version: "0.32"
+    ngx_devel_kit_version: "0.3.1"
+    luajit_env:
+      LUAJIT_LIB: /usr/lib
+      LUAJIT_INC: /usr/include/luajit-2.1
+  tasks:
+    - name: Upgrade all packages
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install the 'Development tools'
+      become: yes
+      yum:
+        name:
+          - build-essential
+          - git
+          - libpcre3
+          - libpcre3-dev
+          - libssl-dev
+          - libtool
+          - autoconf
+          - libxml2-dev
+          - libcurl4-openssl-dev
+        state: present
+
+    - name: Downloading Nginx
+      get_url:
+        url: "http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
+        dest: "build/nginx-{{ nginx_version }}.tar.gz"
+      register: nginx_source
+
+    - name: Downloading PCRE
+      get_url:
+        url: "https://ftp.pcre.org/pub/pcre/pcre-{{ pcre_version }}.tar.gz"
+        dest: "build/pcre-{{ pcre_version }}.tar.gz"
+      register: pcre_source
+
+    - name: Downloading ZLib
+      get_url:
+        url: "https://www.zlib.net/zlib-{{ zlib_version }}.tar.gz"
+        dest: "build/zlib-{{ zlib_version }}.tar.gz"
+      register: zlib_source
+
+    - name: Downloading OpenSSL
+      get_url:
+        url: "https://www.openssl.org/source/openssl-{{ openssl_version }}.tar.gz"
+        dest: "build/openssl-{{ openssl_version }}.tar.gz"
+      register: openssl_source
+
+    - name: Downloading LuaJit2
+      get_url:
+        url: "https://github.com/openresty/luajit2/archive/v{{ luajit2_version }}.tar.gz"
+        dest: "build/luajit2-{{ luajit2_version }}.tar.gz"
+      register: luajit2_source
+
+    - name: Downloading Lua Resty Core
+      get_url:
+        url: "https://github.com/openresty/lua-resty-core/archive/v{{ lua_resty_core_version }}.tar.gz"
+        dest: "build/lua-resty-core-{{ lua_resty_core_version }}.tar.gz"
+      register: lua_resty_core_source
+
+    - name: Downloading Lua-land LRU
+      get_url:
+        url: "https://github.com/openresty/lua-resty-lrucache/archive/v{{ lua_resty_lrucache_version }}.tar.gz"
+        dest: "build/lua-resty-lrucache-{{lua_resty_lrucache_version}}.tar.gz"
+      register: lua_resty_lrucache_source
+
+    - name: Downloading Lua Resty HTTP
+      get_url:
+        url: "https://github.com/ledgetech/lua-resty-http/archive/v{{ lua_resty_http_version }}.tar.gz"
+        dest: "build/lua-resty-http-{{ lua_resty_http_version }}.tar.gz"
+      register: lua_resty_http_sources
+
+    - name: Downloading Lua Resty Balancer
+      get_url:
+        url: "https://github.com/openresty/lua-resty-balancer/archive/v{{ lua_resty_balancer_version }}.tar.gz"
+        dest: "build/lua-resty-balancer-{{ lua_resty_balancer_version }}.tar.gz"
+      register: lua_resty_balancer_sources
+
+    - name: Downloading LuaRocks
+      get_url:
+        url: "https://github.com/luarocks/luarocks/archive/v{{ luarocks_version }}.tar.gz"
+        dest: "build/luarocks{{ luarocks_version }}.tar.gz"
+      register: luarocks_sources
+
+    - name: Cloning ModSecurity
+      git:
+        repo: https://github.com/SpiderLabs/ModSecurity.git
+        dest: build/ModSecurity
+        version: "v{{ modsecurity_lib_version }}"
+      register: modsecurity_sources
+
+    - name: Downloading OWASP ModSecurity Core Rule Set
+      get_url:
+        url: "https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v{{ owasp_modsecurity_crs_version }}.tar.gz"
+        dest: "build/owasp-modsecurity-crs-{{ owasp_modsecurity_crs_version }}.tar.gz"
+      register: owasp_modsecurity_crs_sources
+
+    - name: Downloading ModSecurity-nginx
+      get_url:
+        url: "https://github.com/SpiderLabs/ModSecurity-nginx/archive/v{{ modsecurity_nginx_version }}.tar.gz"
+        dest: "build/ModSecurity-nginx-{{ modsecurity_nginx_version }}.tar.gz"
+      register: modsecurity_nginx_sources
+
+    - name: Downloading lua-nginx-module
+      get_url:
+        url: "https://github.com/openresty/lua-nginx-module/archive/v{{ lua_nginx_module_version }}.tar.gz"
+        dest: "build/lua-nginx-module-{{ lua_nginx_module_version }}.tar.gz"
+      register: lua_nginx_module_sources
+
+    - name: Downloading set-misc-nginx-module
+      get_url:
+        url: "https://github.com/openresty/set-misc-nginx-module/archive/v{{ set_misc_nginx_module_version }}.tar.gz"
+        dest: "build/set_misc_nginx_module-{{ set_misc_nginx_module_version }}.tar.gz"
+      register: set_misc_nginx_module_sources
+
+    - name: Downloading ngx_devel_kit
+      get_url:
+        url: "https://github.com/simplresty/ngx_devel_kit/archive/v{{ ngx_devel_kit_version }}.tar.gz"
+        dest: "build/ngx_devel_kit-{{ ngx_devel_kit_version }}.tar.gz"
+      register: ngx_devel_kit_sources
+
+    - name: Unpacking Nginx
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ nginx_source.dest }}"
+      when: nginx_source.changed
+      register: nginx_source_unpack
+
+    - name: Unpacking PCRE
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ pcre_source.dest }}"
+      when: pcre_source.changed
+      register: pcre_source_unpack
+
+    - name: Unpacking ZLib
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ zlib_source.dest }}"
+      when: zlib_source.changed
+      register: zlib_source_unpack
+
+    - name: Unpacking OpenSSL
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ openssl_source.dest }}"
+      when: openssl_source.changed
+      register: openssl_source_unpack
+
+    - name: Unpacking LuaJit2
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ luajit2_source.dest }}"
+      when: luajit2_source.changed
+      register: luajit2_source_unpack
+
+    - name: Unpacking Lua Resty Core
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ lua_resty_core_source.dest }}"
+      when: lua_resty_core_source.changed
+      register: lua_resty_core_source_unpack
+
+    - name: Unpacking Lua-land LRU
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ lua_resty_lrucache_source.dest }}"
+      when: lua_resty_lrucache_source.changed
+      register: lua_resty_lrucache_source_unpack
+
+    - name: Unpacking Lua Resty HTTP
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{  lua_resty_http_sources.dest }}"
+      when: lua_resty_http_sources.changed
+      register: lua_resty_http_sources_unpack
+
+    - name: Unpacking Lua Resty Balancer
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ lua_resty_balancer_sources.dest }}"
+      when: lua_resty_balancer_sources.changed
+      register: lua_resty_balancer_sources_unpack
+
+    - name: Unpacking LuaRocks
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ luarocks_sources.dest }}"
+      when: luarocks_sources.changed
+      register: luarocks_sources_unpack
+
+    - name: Unpacking OWASP ModSecurity Core Rule Set
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ owasp_modsecurity_crs_sources.dest }}"
+      when: owasp_modsecurity_crs_sources.changed
+      register: owasp_modsecurity_crs_sources_unpack
+
+    - name: Unpacking ModSecurity-nginx
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ modsecurity_nginx_sources.dest }}"
+      when: modsecurity_nginx_sources.changed
+      register: modsecurity_nginx_sources_unpack
+
+    - name: Unpacking lua-nginx-module
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ lua_nginx_module_sources.dest }}"
+      when: lua_nginx_module_sources.changed
+      register: lua_nginx_module_sources_unpack
+
+    - name: Unpacking set-misc-nginx-module
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ set_misc_nginx_module_sources.dest }}"
+      when: set_misc_nginx_module_sources.changed
+      register: set_misc_nginx_module_sources_unpack
+
+    - name: Unpacking ngx_devel_kit
+      unarchive:
+        copy: no
+        dest: build/
+        src: "{{ ngx_devel_kit_sources.dest }}"
+      when: ngx_devel_kit_sources.changed
+      register: ngx_devel_kit_sources_unpack
+
+    - name: Build ModSecurity
+      command: "sh build.sh"
+      args:
+        chdir: build/ModSecurity
+      when: modsecurity_sources is changed
+      register: modsecurity_build
+
+    - name: ModSecurity update submodules
+      command: git submodule update --init --recursive
+      args:
+        chdir: build/ModSecurity
+      when: modsecurity_build is changed
+      register: modsecurity_submodules
+
+    - name: Configure ModSecurity
+      command: "./configure --prefix=/usr --disable-doxygen-doc --disable-examples --disable-dependency-tracking"
+      args:
+        chdir: build/ModSecurity
+      when: modsecurity_submodules is changed
+      register: modsecurity_configure
+
+    - name: Make ModSecurity
+      shell: make
+      args:
+        chdir: build/ModSecurity
+      when: modsecurity_configure is changed
+      register: modsecurity_make
+
+    - name: Installing ModSecurity
+      become: yes
+      shell: make install
+      args:
+        chdir: build/ModSecurity
+      when: modsecurity_make is changed
+
+    - name: Make LuaJit2
+      shell: make PREFIX=/usr
+      args:
+        chdir: "build/luajit2-{{ luajit2_version }}"
+      when: luajit2_source_unpack is changed
+      register: luajit2_make
+
+    - name: Installing LuaJit2
+      become: yes
+      shell: make PREFIX=/usr install
+      args:
+        chdir: "build/luajit2-{{ luajit2_version }}"
+      when: luajit2_make is changed
+
+    - name: Installing Lua Resty Core
+      become: yes
+      shell: make PREFIX=/usr install
+      args:
+        chdir: "build/lua-resty-core-{{ lua_resty_core_version }}"
+      when: lua_resty_core_source_unpack is changed
+
+    - name: Installing Lua-land LRU
+      become: yes
+      shell: make PREFIX=/usr install
+      args:
+        chdir: "build/lua-resty-lrucache-{{ lua_resty_lrucache_version }}"
+      when: lua_resty_lrucache_source_unpack is changed
+
+    - name: Installing Lua Resty HTTP
+      become: yes
+      shell: make PREFIX=/usr install
+      args:
+        chdir: "build/lua-resty-http-{{ lua_resty_http_version }}"
+      when: lua_resty_http_sources_unpack is changed
+
+    - name: Installing Lua Resty Balancer
+      become: yes
+      shell: make PREFIX=/usr install
+      args:
+        chdir: "build/lua-resty-balancer-{{ lua_resty_balancer_sources }}"
+      when: lua_resty_balancer_sources_unpack is changed
+
+    - name: Configure LuaRocks
+      command: "./configure --prefix=/usr --lua-suffix=jit"
+      args:
+        chdir: "build/luarocks-{{ luarocks_version }}"
+      when: luarocks_sources_unpack is changed
+      register: luarocks_configure
+
+    - name: Make LuaRocks
+      shell: make
+      args:
+        chdir: "build/luarocks-{{ luarocks_version }}"
+      when: luarocks_configure is changed
+      register: luarocks_make
+
+    - name: Installing LuaRocks
+      become: yes
+      shell: make install
+      args:
+        chdir: "build/luarocks-{{ luarocks_version }}"
+      when: luarocks_make is changed
+
+    - name: Configure Nginx
+      command: "./configure --prefix=/usr/share/nginx \
+        --sbin-path=/usr/sbin/nginx \
+        --modules-path=/usr/lib/nginx/modules \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --pid-path=/run/nginx.pid \
+        --lock-path=/var/lock/nginx.lock \
+        --user=nginx \
+        --group=nginx \
+        --http-client-body-temp-path=/var/lib/nginx/body \
+        --http-fastcgi-temp-path=/var/lib/nginx/fastcgi \
+        --http-proxy-temp-path=/var/lib/nginx/proxy \
+        --http-scgi-temp-path=/var/lib/nginx/scgi \
+        --http-uwsgi-temp-path=/var/lib/nginx/uwsgi \
+        --with-openssl=build/openssl-{{ openssl_version }} \
+        --with-openssl-opt=enable-ec_nistp_64_gcc_128 \
+        --with-openssl-opt=no-nextprotoneg \
+        --with-openssl-opt=no-weak-ssl-ciphers \
+        --with-openssl-opt=no-ssl3 \
+        --with-pcre=build/pcre-{{ pcre_version }} \
+        --with-pcre-jit \
+        --with-zlib=build/zlib-{{ zlib_version }}/ \
+        --with-compat \
+        --with-file-aio \
+        --with-threads \
+        --with-http_addition_module \
+        --with-http_auth_request_module \
+        --with-http_dav_module \
+        --with-http_flv_module \
+        --with-http_gunzip_module \
+        --with-http_gzip_static_module \
+        --with-http_mp4_module \
+        --with-http_random_index_module \
+        --with-http_realip_module \
+        --with-http_slice_module \
+        --with-http_ssl_module \
+        --with-http_sub_module \
+        --with-http_stub_status_module \
+        --with-http_v2_module \
+        --with-http_secure_link_module \
+        --with-mail \
+        --with-mail_ssl_module \
+        --with-stream \
+        --with-stream_realip_module \
+        --with-stream_ssl_module \
+        --with-stream_ssl_preread_module \
+        --with-cc-opt='-g -O2 -fPIE -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2' \
+        --with-ld-opt='-Wl,-rpath,/usr/lib,-Bsymbolic-functions -fPIE -no-pie -Wl,-z,relro -Wl,-z,now' \
+        --add-module=build/ngx_devel_kit-{{ ngx_devel_kit_version }} \
+        --add-module=build/set-misc-nginx-module-{{ set_misc_nginx_module_version }} \
+        --add-module=build/lua-nginx-module-{{ lua_nginx_module_version }} \
+        --add-module=build/ModSecurity-nginx-{{ modsecurity_nginx_version }}"
+      args:
+        chdir: "build/nginx-{{ nginx_version }}"
+      when: nginx_source_unpack is changed
+      register: nginx_configure
+      environment: "{{ luajit_env }}"
+
+    - name: Make Nginx
+      shell: make
+      args:
+        chdir: "build/nginx-{{ nginx_version }}"
+      when: nginx_configure is changed
+      register: nginx_make
+      environment: "{{ luajit_env }}"
+
+    - name: Installing Nginx
+      become: yes
+      shell: make install
+      args:
+        chdir: "build/nginx-{{ nginx_version }}"
+      when: nginx_make is changed
+      environment: "{{ luajit_env }}"
+
+    - name: Create a Nginx group
+      become: yes
+      group:
+        name: nginx
+        state: present
+
+    - name: Create a Nginx user
+      become: yes
+      user:
+        name: nginx
+        shell: /sbin/nologin
+        groups: nginx
+        system: yes
+        home: /usr/share/nginx
+        comment: Nginx user
+
+    - name: Copy a Nginx init script
+      become: yes
+      copy:
+        src: src/init.d/nginx
+        dest: /etc/init.d/nginx
+        mode: "0755"
+
+    - name: Copy a logrotate configurations
+      become: yes
+      copy:
+        src: src/logrotate.d/{{ item }}
+        dest: /etc/logrotate.d/{{ item }}
+        mode: "0644"
+      with_items:
+        - nginx
+        - ingress
+
+    - name: Create a directories for Nginx
+      become: yes
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: nginx
+        group: nginx
+      with_items:
+        - /var/lib/nginx/body
+        - /var/lib/nginx/fastcgi
+        - /var/lib/nginx/proxy
+        - /var/lib/nginx/scgi
+        - /var/lib/nginx/uwsgi
+
+    - name: Create a directories for ingress configurations
+      become: yes
+      file:
+        path: /etc/ingress
+        state: directory
+
+    - name: Copy Nginx configurations
+      become: yes
+      copy:
+        src: "{{ item }}"
+        dest: /etc/nginx/
+      with_items:
+        - resources/conf/conf.d
+        - resources/conf/ssl
+        - resources/conf/modsec
+
+    - name: Copy lua library
+      become: yes
+      copy:
+        src: src/lua/placidina
+        dest: /usr/lib/lua/
+
+    - name: Copy Nginx main configurations
+      become: yes
+      copy:
+        src: resources/conf/nginx.conf
+        dest: /etc/nginx/nginx.conf
+        force: yes
+
+    - name: Move a OWASP Core Rules
+      become: yes
+      copy:
+        src: "build/owasp-modsecurity-crs-{{ owasp_modsecurity_crs_version }}/"
+        dest: /etc/nginx/modsec/owasp
+
+    - name: Copy OWASP setup configurations
+      become: yes
+      copy:
+        src: resources/conf/crs-setup.conf
+        dest: /etc/nginx/modsec/owasp-modsecurity-crs/crs-setup.conf
+        force: yes
+
+    - name: Install LuaRocks packages
+      become: yes
+      command: luarocks install lua-cjson
+
+    - name: Get Tor ExitAddress
+      become: yes
+      shell: curl -Ls https://check.torproject.org/exit-addresses | grep ExitAddress | cut -d ' ' -f 2 | sed "s/^//g; s/$//g" | tee /etc/nginx/modsec/tor-exit-addresses.txt
