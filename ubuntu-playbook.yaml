@@ -28,11 +28,13 @@
     - name: Upgrade all packages
       become: yes
       apt:
+        force_apt_get: yes
         update_cache: yes
 
     - name: Install the packages
       become: yes
-      yum:
+      apt:
+        force_apt_get: yes
         name:
           - build-essential
           - git
@@ -91,182 +93,167 @@
       get_url:
         url: "https://github.com/ledgetech/lua-resty-http/archive/v{{ lua_resty_http_version }}.tar.gz"
         dest: "build/lua-resty-http-{{ lua_resty_http_version }}.tar.gz"
-      register: lua_resty_http_sources
+      register: lua_resty_http_source
 
     - name: Downloading Lua Resty Balancer
       get_url:
         url: "https://github.com/openresty/lua-resty-balancer/archive/v{{ lua_resty_balancer_version }}.tar.gz"
         dest: "build/lua-resty-balancer-{{ lua_resty_balancer_version }}.tar.gz"
-      register: lua_resty_balancer_sources
+      register: lua_resty_balancer_source
 
     - name: Downloading LuaRocks
       get_url:
         url: "https://github.com/luarocks/luarocks/archive/v{{ luarocks_version }}.tar.gz"
         dest: "build/luarocks-{{ luarocks_version }}.tar.gz"
-      register: luarocks_sources
+      register: luarocks_source
 
     - name: Cloning ModSecurity
       git:
         repo: https://github.com/SpiderLabs/ModSecurity.git
         dest: build/ModSecurity
         version: "v{{ modsecurity_lib_version }}"
-      register: modsecurity_sources
+      register: modsecurity_source
 
     - name: Downloading OWASP ModSecurity Core Rule Set
       get_url:
         url: "https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v{{ owasp_modsecurity_crs_version }}.tar.gz"
         dest: "build/owasp-modsecurity-crs-{{ owasp_modsecurity_crs_version }}.tar.gz"
-      register: owasp_modsecurity_crs_sources
+      register: owasp_modsecurity_crs_source
 
     - name: Downloading ModSecurity-nginx
       get_url:
         url: "https://github.com/SpiderLabs/ModSecurity-nginx/archive/v{{ modsecurity_nginx_version }}.tar.gz"
         dest: "build/ModSecurity-nginx-{{ modsecurity_nginx_version }}.tar.gz"
-      register: modsecurity_nginx_sources
+      register: modsecurity_nginx_source
 
     - name: Downloading lua-nginx-module
       get_url:
         url: "https://github.com/openresty/lua-nginx-module/archive/v{{ lua_nginx_module_version }}.tar.gz"
         dest: "build/lua-nginx-module-{{ lua_nginx_module_version }}.tar.gz"
-      register: lua_nginx_module_sources
+      register: lua_nginx_module_source
 
     - name: Downloading set-misc-nginx-module
       get_url:
         url: "https://github.com/openresty/set-misc-nginx-module/archive/v{{ set_misc_nginx_module_version }}.tar.gz"
         dest: "build/set_misc_nginx_module-{{ set_misc_nginx_module_version }}.tar.gz"
-      register: set_misc_nginx_module_sources
+      register: set_misc_nginx_module_source
 
     - name: Downloading ngx_devel_kit
       get_url:
         url: "https://github.com/simplresty/ngx_devel_kit/archive/v{{ ngx_devel_kit_version }}.tar.gz"
         dest: "build/ngx_devel_kit-{{ ngx_devel_kit_version }}.tar.gz"
-      register: ngx_devel_kit_sources
+      register: ngx_devel_kit_source
 
     - name: Unpacking Nginx
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ nginx_source.dest }}"
+      shell: tar -zxf {{ nginx_source.dest }} -C build/
+      args:
+        warn: no
       when: nginx_source.changed
       register: nginx_source_unpack
 
     - name: Unpacking PCRE
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ pcre_source.dest }}"
+      shell: tar -zxf {{ pcre_source.dest }} -C build/
+      args:
+        warn: no
       when: pcre_source.changed
       register: pcre_source_unpack
 
     - name: Unpacking ZLib
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ zlib_source.dest }}"
+      shell: tar -zxf {{ zlib_source.dest }} -C build/
+      args:
+        warn: no
       when: zlib_source.changed
       register: zlib_source_unpack
 
     - name: Unpacking OpenSSL
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ openssl_source.dest }}"
+      shell: tar -zxf {{ openssl_source.dest }} -C build/
+      args:
+        warn: no
       when: openssl_source.changed
       register: openssl_source_unpack
 
     - name: Unpacking LuaJit2
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ luajit2_source.dest }}"
+      shell: tar -zxf {{ luajit2_source.dest }} -C build/
+      args:
+        warn: no
       when: luajit2_source.changed
       register: luajit2_source_unpack
 
     - name: Unpacking Lua Resty Core
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ lua_resty_core_source.dest }}"
+      shell: tar -zxf {{ lua_resty_core_source.dest }} -C build/
+      args:
+        warn: no
       when: lua_resty_core_source.changed
       register: lua_resty_core_source_unpack
 
     - name: Unpacking Lua-land LRU
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ lua_resty_lrucache_source.dest }}"
+      shell: tar -zxf {{ lua_resty_lrucache_source.dest }} -C build/
+      args:
+        warn: no
       when: lua_resty_lrucache_source.changed
       register: lua_resty_lrucache_source_unpack
 
     - name: Unpacking Lua Resty HTTP
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{  lua_resty_http_sources.dest }}"
-      when: lua_resty_http_sources.changed
-      register: lua_resty_http_sources_unpack
+      shell: tar -zxf {{ lua_resty_http_source.dest }} -C build/
+      args:
+        warn: no
+      when: lua_resty_http_source.changed
+      register: lua_resty_http_source_unpack
 
     - name: Unpacking Lua Resty Balancer
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ lua_resty_balancer_sources.dest }}"
-      when: lua_resty_balancer_sources.changed
-      register: lua_resty_balancer_sources_unpack
+      shell: tar -zxf {{ lua_resty_balancer_source.dest }} -C build/
+      args:
+        warn: no
+      when: lua_resty_balancer_source.changed
+      register: lua_resty_balancer_source_unpack
 
     - name: Unpacking LuaRocks
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ luarocks_sources.dest }}"
-      when: luarocks_sources.changed
-      register: luarocks_sources_unpack
+      shell: tar -zxf {{ luarocks_source.dest }} -C build/
+      args:
+        warn: no
+      when: luarocks_source.changed
+      register: luarocks_source_unpack
 
     - name: Unpacking OWASP ModSecurity Core Rule Set
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ owasp_modsecurity_crs_sources.dest }}"
-      when: owasp_modsecurity_crs_sources.changed
-      register: owasp_modsecurity_crs_sources_unpack
+      shell: tar -zxf {{ owasp_modsecurity_crs_source.dest }} -C build/
+      args:
+        warn: no
+      when: owasp_modsecurity_crs_source.changed
+      register: owasp_modsecurity_crs_source_unpack
 
     - name: Unpacking ModSecurity-nginx
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ modsecurity_nginx_sources.dest }}"
-      when: modsecurity_nginx_sources.changed
-      register: modsecurity_nginx_sources_unpack
+      shell: tar -zxf {{ modsecurity_nginx_source.dest }} -C build/
+      args:
+        warn: no
+      when: modsecurity_nginx_source.changed
+      register: modsecurity_nginx_source_unpack
 
     - name: Unpacking lua-nginx-module
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ lua_nginx_module_sources.dest }}"
-      when: lua_nginx_module_sources.changed
-      register: lua_nginx_module_sources_unpack
+      shell: tar -zxf {{ lua_nginx_module_source.dest }} -C build/
+      args:
+        warn: no
+      when: lua_nginx_module_source.changed
+      register: lua_nginx_module_source_unpack
 
     - name: Unpacking set-misc-nginx-module
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ set_misc_nginx_module_sources.dest }}"
-      when: set_misc_nginx_module_sources.changed
-      register: set_misc_nginx_module_sources_unpack
+      shell: tar -zxf {{ set_misc_nginx_module_source.dest }} -C build/
+      args:
+        warn: no
+      when: set_misc_nginx_module_source.changed
+      register: set_misc_nginx_module_source_unpack
 
     - name: Unpacking ngx_devel_kit
-      unarchive:
-        copy: no
-        dest: build/
-        src: "{{ ngx_devel_kit_sources.dest }}"
-      when: ngx_devel_kit_sources.changed
-      register: ngx_devel_kit_sources_unpack
+      shell: tar -zxf {{ ngx_devel_kit_source.dest }} -C build/
+      args:
+        warn: no
+      when: ngx_devel_kit_source.changed
+      register: ngx_devel_kit_source_unpack
 
     - name: Build ModSecurity
       command: "sh build.sh"
       args:
         chdir: build/ModSecurity
-      when: modsecurity_sources is changed
+      when: modsecurity_source is changed
       register: modsecurity_build
 
     - name: ModSecurity update submodules
@@ -330,20 +317,20 @@
       shell: make PREFIX=/usr install
       args:
         chdir: "build/lua-resty-http-{{ lua_resty_http_version }}"
-      when: lua_resty_http_sources_unpack is changed
+      when: lua_resty_http_source_unpack is changed
 
     - name: Installing Lua Resty Balancer
       become: yes
       shell: make PREFIX=/usr install
       args:
-        chdir: "build/lua-resty-balancer-{{ lua_resty_balancer_sources }}"
-      when: lua_resty_balancer_sources_unpack is changed
+        chdir: "build/lua-resty-balancer-{{ lua_resty_balancer_source }}"
+      when: lua_resty_balancer_source_unpack is changed
 
     - name: Configure LuaRocks
       command: "./configure --prefix=/usr --lua-suffix=jit"
       args:
         chdir: "build/luarocks-{{ luarocks_version }}"
-      when: luarocks_sources_unpack is changed
+      when: luarocks_source_unpack is changed
       register: luarocks_configure
 
     - name: Make LuaRocks
