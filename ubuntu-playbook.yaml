@@ -319,12 +319,19 @@
         chdir: "build/lua-resty-http-{{ lua_resty_http_version }}"
       when: lua_resty_http_source_unpack is changed
 
+    - name: Make Lua Resty Balancer
+      shell: make PREFIX=/usr
+      args:
+        chdir: build/ModSecurity
+      when: lua_resty_balancer_source_unpack is changed
+      register: lua_resty_balancer_make
+
     - name: Installing Lua Resty Balancer
       become: yes
       shell: make PREFIX=/usr install
       args:
         chdir: "build/lua-resty-balancer-{{ lua_resty_balancer_source }}"
-      when: lua_resty_balancer_source_unpack is changed
+      when: lua_resty_balancer_make is changed
 
     - name: Configure LuaRocks
       command: "./configure --prefix=/usr --lua-suffix=jit"
