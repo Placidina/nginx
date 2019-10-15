@@ -30,7 +30,7 @@
       apt:
         update_cache: yes
 
-    - name: Install the 'Development tools'
+    - name: Install the packages
       become: yes
       yum:
         name:
@@ -102,7 +102,7 @@
     - name: Downloading LuaRocks
       get_url:
         url: "https://github.com/luarocks/luarocks/archive/v{{ luarocks_version }}.tar.gz"
-        dest: "build/luarocks{{ luarocks_version }}.tar.gz"
+        dest: "build/luarocks-{{ luarocks_version }}.tar.gz"
       register: luarocks_sources
 
     - name: Cloning ModSecurity
