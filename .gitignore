@@ -3,3 +3,9 @@ build/*
 
 secret
 vault.txt
+
+resources/conf/ssl/*
+!resources/conf/ssl/.gitkeep
+
+resources/conf/conf.d/*
+!resources/conf/conf.d/default.conf

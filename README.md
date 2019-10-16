@@ -3,13 +3,19 @@
 [![v 1.16.1](https://img.shields.io/badge/v-1.16.1-green.svg)](http://nginx.org/en/CHANGES-1.16)
 
 * [Build](#build)
-  * [Vault](#vault)
-  * [Check](#check)
-  * [Playbook](#playbook)
+  * [Ansible](#ansible)
+    * [Vault](#vault)
+    * [Check](#check)
+    * [Playbook](#playbook)
+  * [Docker](#docker)
 
 ## Build
 
-### Vault
+### Ansible
+
+Build using `ansible`.
+
+#### Vault
 
 Create a secret for `sudo` password:
 
@@ -17,10 +23,20 @@ Create a secret for `sudo` password:
   * Add `ansible_become_pass: YOUR_SUDO_PASSWORD`
 * `echo "YOUR_VOULT_PASSWORD" > vault.txt`
 
-### Check
+#### Check
 
-`ansible-playbook --check --vault-password-file=vault.txt $(cat /etc/issue | awk 'NR==1 {print tolower($1)}')-playbook.yaml`
+Replace `EXAMPLE`:
 
-### Playbook
+`ansible-playbook --check --vault-password-file=vault.txt EXAMPLE-playbook.yaml`
 
-`ansible-playbook --vault-password-file=vault.txt $(cat /etc/issue | awk 'NR==1 {print tolower($1)}')-playbook.yaml`
+#### Playbook
+
+Replace `EXAMPLE`:
+
+`ansible-playbook --vault-password-file=vault.txt EXAMPLE-playbook.yaml`
+
+### Docker
+
+Build using `docker`.
+
+`docker build -t placidina/nginx:1.6.1 .`

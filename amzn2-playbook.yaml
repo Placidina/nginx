@@ -30,28 +30,43 @@
   tasks:
     - name: Upgrade all packages
       become: yes
-      apt:
-        force_apt_get: yes
-        update_cache: yes
+      yum:
+        name: "*"
+        state: latest
 
-    - name: Install the packages
+    - name: Install the 'Development tools' package group
       become: yes
-      apt:
-        force_apt_get: yes
+      yum:
+        name: "@Development tools"
+        state: present
+
+    - name: Install packages
+      become: yes
+      yum:
         name:
-          - build-essential
           - git
-          - libpcre3
-          - libpcre3-dev
-          - libssl-dev
+          - perl
+          - perl-devel
+          - perl-ExtUtils-Embed
+          - libxslt
+          - libxslt-devel
+          - libxml2
+          - libxml2-devel
+          - gd
+          - gd-devel
+          - GeoIP
+          - GeoIP-devel
+          - zlib-devel
+          - automake
           - libtool
-          - autoconf
-          - libxml2-dev
-          - libcurl4-openssl-dev
-          - libgeoip-dev
-          - geoip-bin
-          - geoip-database
-          - geoip-database-extra
+          - pcre-devel
+          - doxygen
+          - curl-devel
+          - bison
+          - flex
+          - gcc-c++
+          - python3
+          - python3-pip
         state: present
 
     - name: Downloading Nginx
