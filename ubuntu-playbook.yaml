@@ -330,7 +330,7 @@
       become: yes
       shell: make PREFIX=/usr install
       args:
-        chdir: "build/lua-resty-balancer-{{ lua_resty_balancer_source }}"
+        chdir: "build/lua-resty-balancer-{{ lua_resty_balancer_version }}"
       when: lua_resty_balancer_make is changed
 
     - name: Configure LuaRocks
