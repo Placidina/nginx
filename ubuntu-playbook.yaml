@@ -540,6 +540,7 @@
         - /var/lib/nginx/proxy
         - /var/lib/nginx/scgi
         - /var/lib/nginx/uwsgi
+        - /var/lib/nginx/upstream
 
     - name: Copy Nginx configurations
       become: yes

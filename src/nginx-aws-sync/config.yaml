@@ -1,0 +1,10 @@
+# Example
+
+# credentials:
+#   region: us-east-1
+#   accessKey: MY_ACCSS_KEY
+#   secretKey: MY_SECRET_KEY
+# upstream:
+#   - name: backend
+#     port: 80
+#     path: /var/lib/nginx/upstream
