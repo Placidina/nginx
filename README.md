@@ -2,6 +2,8 @@
 
 [![v 1.16.1](https://img.shields.io/badge/v-1.16.1-green.svg)](http://nginx.org/en/CHANGES-1.16)
 
+Compile `nginx` using `ansible`.
+
 * Nginx custom modules
   * `lua-nginx-module`
   * `set-misc-nginx-module`
@@ -46,10 +48,10 @@ Create a secret for `sudo` password:
 
 #### Check
 
-* Ubuntu:
+* **Ubuntu:**
   * `ansible-playbook --check --vault-password-file=vault.txt ubuntu-playbook.yaml`
 
 #### Playbook
 
-* Ubuntu:
+* **Ubuntu:**
   * `ansible-playbook --vault-password-file=vault.txt ubuntu-playbook.yaml`
