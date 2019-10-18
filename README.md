@@ -23,6 +23,8 @@ Compile `nginx` using `ansible`.
 * `owasp-modsecurity-crs`
 * `luarocks`
 
+----
+
 * [Build](#build)
   * [Ansible](#ansible)
     * [Vault](#vault)
