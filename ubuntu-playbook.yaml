@@ -160,7 +160,7 @@
     - name: Downloading set-misc-nginx-module
       get_url:
         url: "https://github.com/openresty/set-misc-nginx-module/archive/v{{ set_misc_nginx_module_version }}.tar.gz"
-        dest: "build/set_misc_nginx_module-{{ set_misc_nginx_module_version }}.tar.gz"
+        dest: "build/set-misc-nginx-module-{{ set_misc_nginx_module_version }}.tar.gz"
       register: set_misc_nginx_module_source
 
     - name: Downloading ngx_devel_kit

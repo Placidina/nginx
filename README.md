@@ -2,12 +2,33 @@
 
 [![v 1.16.1](https://img.shields.io/badge/v-1.16.1-green.svg)](http://nginx.org/en/CHANGES-1.16)
 
+* Nginx custom modules
+  * `lua-nginx-module`
+  * `set-misc-nginx-module`
+  * `ModSecurity-nginx`
+  * `ngx-devel-kit`
+
+* Resty libraries:
+  * `lua-resty-core`
+  * `lua-resty-lrucache`
+  * `lua-resty-http`
+  * `lua-resty-balancer`
+  * `lua-resty-dns`
+  * `lua-resty-cookie`
+  * `lua-resty-lock`
+
+* Lua libraries:
+  * `cjson`
+
+* `ModSecurity`
+
+* `owasp-modsecurity-crs`
+
 * [Build](#build)
   * [Ansible](#ansible)
     * [Vault](#vault)
     * [Check](#check)
     * [Playbook](#playbook)
-  * [Docker](#docker)
 
 ## Build
 
@@ -25,18 +46,10 @@ Create a secret for `sudo` password:
 
 #### Check
 
-Replace `EXAMPLE`:
-
-`ansible-playbook --check --vault-password-file=vault.txt EXAMPLE-playbook.yaml`
+* Ubuntu:
+  * `ansible-playbook --check --vault-password-file=vault.txt ubuntu-playbook.yaml`
 
 #### Playbook
 
-Replace `EXAMPLE`:
-
-`ansible-playbook --vault-password-file=vault.txt EXAMPLE-playbook.yaml`
-
-### Docker
-
-Build using `docker`.
-
-`docker build -t placidina/nginx:1.6.1 .`
+* Ubuntu:
+  * `ansible-playbook --vault-password-file=vault.txt ubuntu-playbook.yaml`
