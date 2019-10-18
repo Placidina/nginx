@@ -9,7 +9,6 @@ Compile `nginx` using `ansible`.
   * `set-misc-nginx-module`
   * `ModSecurity-nginx`
   * `ngx-devel-kit`
-
 * Resty libraries:
   * `lua-resty-core`
   * `lua-resty-lrucache`
@@ -18,13 +17,11 @@ Compile `nginx` using `ansible`.
   * `lua-resty-dns`
   * `lua-resty-cookie`
   * `lua-resty-lock`
-
 * Lua libraries:
   * `cjson`
-
 * `ModSecurity`
-
 * `owasp-modsecurity-crs`
+* `luarocks`
 
 * [Build](#build)
   * [Ansible](#ansible)
